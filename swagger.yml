@@ -1,0 +1,100 @@
+swagger: '2.0'
+info:
+  title:
+    Fn::Sub: ${ProjectName}
+  description:
+    Fn::Sub: ${ProjectName}
+  version: 1.0.0
+
+schemas:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+basePath:
+  Fn::Sub: /
+
+paths:
+  /v1/users:
+    get:
+       x-amazon-apigateway-integration:
+         uri:
+           Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetUsers.Arn}/invocations
+         passthroughBehavior: when_no_match
+         httpMethod: POST
+         type: aws_proxy
+    post:
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostUsers.Arn}/invocations
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: aws_proxy
+
+  /v1/users/{user_id}:
+    get:
+     x-amazon-apigateway-integration:
+       uri:
+         Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetUser.Arn}/invocations
+       passthroughBehavior: when_no_match
+       httpMethod: POST
+       type: aws_proxy
+
+    put:
+     x-amazon-apigateway-integration:
+       uri:
+         Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PutUser.Arn}/invocations
+       passthroughBehavior: when_no_match
+       httpMethod: POST
+       type: aws_proxy
+
+    delete:
+     x-amazon-apigateway-integration:
+       uri:
+         Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${DeleteUser.Arn}/invocations
+       passthroughBehavior: when_no_match
+       httpMethod: POST
+       type: aws_proxy
+
+  /v1/users/{user_id}/microposts:
+    get:
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetMicroposts.Arn}/invocations
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: aws_proxy
+    post:
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostMicroposts.Arn}/invocations
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: aws_proxy
+
+  /v1/users/{user_id}/microposts/{micropost_id}:
+    get:
+     x-amazon-apigateway-integration:
+       uri:
+         Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetMicropost.Arn}/invocations
+       passthroughBehavior: when_no_match
+       httpMethod: POST
+       type: aws_proxy
+
+    put:
+     x-amazon-apigateway-integration:
+       uri:
+         Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PutMicropost.Arn}/invocations
+       passthroughBehavior: when_no_match
+       httpMethod: POST
+       type: aws_proxy
+
+    delete:
+     x-amazon-apigateway-integration:
+       uri:
+         Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${DeleteMicropost.Arn}/invocations
+       passthroughBehavior: when_no_match
+       httpMethod: POST
+       type: aws_proxy
+

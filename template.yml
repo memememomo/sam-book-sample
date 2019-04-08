@@ -1,0 +1,323 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: sam-book-sample
+  Stage:
+    Type: String
+    Default: dev
+  SwaggerBucketName:
+    Type: String
+  DynamoTableName:
+    Type: String
+    Default: MainTable
+  DynamoTableVersion:
+    Type: String
+    Default: v0.1
+
+
+Globals:
+  Function:
+    Runtime: go1.x
+    Timeout: 900
+    Environment:
+      Variables:
+        PROJECT_NAME: !Ref ProjectName
+        DYNAMO_TABLE_NAME: !Ref DynamoTableName
+        DYNAMO_TABLE_VERSION: !Ref DynamoTableVersion
+
+
+Resources:
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        -
+          PolicyName: sam-book-sample-lambda
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              -
+                Effect: Allow
+                Action: "dynamodb:*"
+                Resource: "*"
+              -
+                Effect: Allow
+                Action: "logs:*"
+                Resource: "*"
+
+
+
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !Ref Stage
+      Cors:
+        AllowOrigin: "'*'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,WWW-Authenticate,x-amz-content-sha256'"
+      DefinitionBody:
+        Fn::Transform:
+          Name: AWS::Include
+          Parameters:
+            Location: !Sub s3://${SwaggerBucketName}/swagger.yml
+
+
+
+
+  PermPostUsers:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref PostUsers
+      Principal: apigateway.amazonaws.com
+
+  PermGetUsers:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref GetUsers
+      Principal: apigateway.amazonaws.com
+
+  PermGetUser:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref GetUser
+      Principal: apigateway.amazonaws.com
+
+  PermPutUser:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref PutUser
+      Principal: apigateway.amazonaws.com
+
+  PermDeleteUser:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref DeleteUser
+      Principal: apigateway.amazonaws.com
+
+  PermPostMicroposts:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref PostMicroposts
+      Principal: apigateway.amazonaws.com
+
+  PermGetMicroposts:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref GetMicroposts
+      Principal: apigateway.amazonaws.com
+
+  PermGetMicropost:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref GetMicropost
+      Principal: apigateway.amazonaws.com
+
+  PermPutMicropost:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref PutMicropost
+      Principal: apigateway.amazonaws.com
+
+  PermDeleteMicropost:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref DeleteMicropost
+      Principal: apigateway.amazonaws.com
+
+
+
+
+
+  PostUsers:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${ProjectName}-PostUsers
+      CodeUri: ./handlers/api/post_users
+      Role: !GetAtt LambdaRole.Arn
+      Handler: main
+      Events:
+        PostUsers:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /v1/users
+            Method: post
+
+  GetUsers:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${ProjectName}-GetUsers
+      CodeUri: ./handlers/api/get_users
+      Role: !GetAtt LambdaRole.Arn
+      Handler: main
+      Events:
+        GetUsers:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /v1/users
+            Method: get
+
+  GetUser:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${ProjectName}-GetUser
+      CodeUri: ./handlers/api/get_user
+      Role: !GetAtt LambdaRole.Arn
+      Handler: main
+      Events:
+        GetUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /v1/users/{user_id}
+            Method: get
+
+  PutUser:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${ProjectName}-PutUser
+      CodeUri: ./handlers/api/put_user
+      Role: !GetAtt LambdaRole.Arn
+      Handler: main
+      Events:
+        PutUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /v1/users/{user_id}
+            Method: put
+
+  DeleteUser:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${ProjectName}-DeleteUser
+      CodeUri: ./handlers/api/delete_user
+      Role: !GetAtt LambdaRole.Arn
+      Handler: main
+      Events:
+        PutUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /v1/users/{user_id}
+            Method: delete
+
+
+  PostMicroposts:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${ProjectName}-PostMicroposts
+      CodeUri: ./handlers/api/post_microposts
+      Role: !GetAtt LambdaRole.Arn
+      Handler: main
+      Events:
+        PostMicroposts:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /v1/users/{user_id}/microposts
+            Method: post
+
+  GetMicroposts:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${ProjectName}-GetMicroposts
+      CodeUri: ./handlers/api/get_microposts
+      Role: !GetAtt LambdaRole.Arn
+      Handler: main
+      Events:
+        GetMicroposts:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /v1/users/{user_id}/microposts
+            Method: get
+
+  GetMicropost:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${ProjectName}-GetMicropost
+      CodeUri: ./handlers/api/get_micropost
+      Role: !GetAtt LambdaRole.Arn
+      Handler: main
+      Events:
+        GetMicropost:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /v1/users/{user_id}/microposts/{micropost_id}
+            Method: get
+
+  PutMicropost:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${ProjectName}-PutMicropost
+      CodeUri: ./handlers/api/put_micropost
+      Role: !GetAtt LambdaRole.Arn
+      Handler: main
+      Events:
+        PutMicropost:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /v1/users/{user_id}/microposts/{micropost_id}
+            Method: put
+
+  DeleteMicropost:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${ProjectName}-DeleteMicropost
+      CodeUri: ./handlers/api/delete_micropost
+      Role: !GetAtt LambdaRole.Arn
+      Handler: main
+      Events:
+        DeleteMicropost:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /v1/users/{user_id}/microposts/{micropost_id}
+            Method: delete
+
+
+  MainTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        -
+          AttributeName: PK
+          AttributeType: S
+        -
+          AttributeName: SK
+          AttributeType: S
+      KeySchema:
+        -
+          AttributeName: PK
+          KeyType: HASH
+        -
+          AttributeName: SK
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+      TableName: !Sub ${ProjectName}-${DynamoTableName}-${DynamoTableVersion}
+

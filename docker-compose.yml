@@ -1,0 +1,51 @@
+version: '3'
+services:
+  sam-local:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile_sam
+    volumes:
+      - .:/var/opt/src/sam-book-sample
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - VOLUME=$PWD
+    env_file:
+      - .env
+      - .env.dynamodb-local
+    networks:
+      - net
+
+  dynamodb-local:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile_dynamodb
+    ports:
+      - '8000:8000'
+    volumes:
+      - .:/var/opt
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - VOLUME=$PWD
+    env_file:
+      - .env
+      - .env.dynamodb-local
+    networks:
+      - net
+
+  go-test:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile_go
+    volumes:
+      - .:/go/src/sam-book-sample
+    depends_on:
+      - dynamodb-local
+    env_file:
+      - .env
+      - .env.dynamodb-local
+    networks:
+      - net
+
+networks:
+  net:
+    driver: bridge
