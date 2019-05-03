@@ -123,8 +123,8 @@ func GetMicropostsByUserID(userID uint64) ([]*Micropost, error) {
 	}
 
 	var microposts = make([]*Micropost, len(micropostDynamo))
-	for i, m := range micropostDynamo {
-		microposts[i] = &m.Micropost
+	for i := range micropostDynamo {
+		microposts[i] = &micropostDynamo[i].Micropost
 	}
 
 	return microposts, nil

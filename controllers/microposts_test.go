@@ -239,14 +239,14 @@ func TestGetMicroposts(t *testing.T) {
 
 	actualMicroposts := body["microposts"].([]interface{})
 
-	expected1 := micropostMocks[0].(*models.Micropost)
+	expected1 := micropostMocks[1].(*models.Micropost)
 	actual1 := actualMicroposts[0].(map[string]interface{})
 	assert.Equal(t, float64(expected1.ID), actual1["id"])
 	assert.Equal(t, expected1.Content, actual1["content"])
 	assert.Equal(t, float64(expected1.UserID), actual1["user_id"])
 
 	expected2 := micropostMocks[0].(*models.Micropost)
-	actual2 := actualMicroposts[0].(map[string]interface{})
+	actual2 := actualMicroposts[1].(map[string]interface{})
 	assert.Equal(t, float64(expected2.ID), actual2["id"])
 	assert.Equal(t, expected2.Content, actual2["content"])
 	assert.Equal(t, float64(expected2.UserID), actual2["user_id"])
